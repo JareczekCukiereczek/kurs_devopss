@@ -1,0 +1,45 @@
+ansible all -m apt -a "name=nginx state=latest update_cache=yes" --instaluje
+- instalacja nginx na wszystkich serwerach (all - wszystkie serwery w /etc/ansible/hosts) 
+
+
+ansible 161.35.203.68 -m script -a "/root/DEVOPS/01_BASH/install.sh install"
+-puszczanie skryptu zdalnie na wszystkich serwerach
+====================================================
+Playbook instaluje nginx, usuwa pliki u wrzuca kontent do zdalnej lokalizacji
+
+#Uruchomienie 
+ansible-playbook playbook_nginx.yaml 
+root@ubuntu-s-1vcpu-1gb-amd-fra1-04:~/DEVOPS/02_ANSIBLE/02_playbook# cat playbook_nginx.yaml 
+- name: zadanko
+  remote_user: root
+  hosts: all
+
+  tasks:
+  - name: install nginx
+    ansible.builtin.apt:
+      name: nginx
+      state: latest
+  - name: delete file
+    ansible.builtin.file:
+      path: /var/www/html/index.nginx-debian.html
+      state: absent
+  - name: copying files
+    ansible.builtin.copy:
+      src: .
+      dest: /var/www/html
+      owner: root
+      group: root
+      mode: '0644'
+
+==================================================
+Playbook wykonujący komende date na serwerze i zwracający output tego:
+
+
+  tasks:
+  - name: Run a shell command and register its output as a variable 
+    ansible.builtin.shell: date
+    register: foo_result
+
+  - name: Print return information from the previous task
+    ansible.builtin.debug:
+      var: foo_result

@@ -1,0 +1,22 @@
+ - name: zadanko
+  remote_user: root
+  hosts: all
+
+  tasks:
+  - name: install nginx
+    ansible.builtin.apt:
+      name: nginx
+      state: latest
+  - name: delete file
+    ansible.builtin.file:
+      path: /var/www/html/index.nginx-debian.html
+      state: absent
+  - name: copying files
+    ansible.builtin.copy:
+      src: .
+      dest: /var/www/html
+      owner: root
+      group: root
+      mode: '0644'
+
+

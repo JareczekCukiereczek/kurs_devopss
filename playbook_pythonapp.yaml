@@ -1,0 +1,37 @@
+- name: instalowanie python_app
+  remote_user: root
+  hosts: all
+  gather_facts: false
+  vars: #zmienna
+    python_app_dir: /root/python
+  tasks:
+  - name: instalacja pakietow
+    apt:
+      name:
+        - python3 
+        - redis 
+        - python3-pip
+        - uvicorn
+      update_cache: yes
+      install_recommends: no
+  - name: copy python app #kopiowanie pakietow do lokalozacji + zmienna
+    copy:
+      src: /root/DEVOPS/01_BASH/Python_app/
+      dest: "{{ python_app_dir }}"
+  - name: install python requriments # wykonanie w danej lokalizacji komendy na hoscie
+    shell:
+      cmd: pip3 install --no-cache-dir -r requirements.txt
+      chdir: "{{ python_app_dir }}"
+  - name: install python service
+    template:
+      src: ./python-service.tpl
+      dest: /lib/systemd/system/python-api.service
+    notify:
+      - reload demon #handlers wykona sie tylko wtedy gdy notify się wykona-ta sama nazwa
+  handlers:
+    - name: reload demon
+      systemd:
+        state: restarted
+        daemon_reload: yes
+        name: python-api.service
+        enabled: yes
